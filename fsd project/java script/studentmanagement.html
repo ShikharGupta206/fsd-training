@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .card{
+        width: 600px;
+        height:400px;
+        display:flex;
+        flex-direction: column;
+        margin:30px; 
+        background-color:orangered;
+        
+    } 
+    .card input{
+        width:80%;
+        height:40px;
+        padding: 10px;
+        margin:10px;
+        border-radius: 10px;
+        
+    }
+    .card button{
+        width:140px;
+        height:40px;
+        border-radius: 13px;
+        background-color: rgb(154, 204, 240);
+        margin: 10px;
+        padding:10px;
+    }
+    
+</style>
+<body> 
+    <div class="card">
+        <input type="text" id="Name" placeholder="Enter the Name">
+        <input type="text" id="Email"  placeholder="Enter the email">
+        <input type="number" id="Marks" placeholder="Enter the marks">
+        <button onclick="addStudent()"> Add Student</button>
+
+    </div>
+    <script>
+        let student=[];
+        let email=new set();
+        let marks= new map();
+        function addStudent(){
+            const name=document.getElementById("Name").value;
+            const email=document.getElementById("Email").value;
+            const marks=document.getElementById("Marks").value;
+            const emailpattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if(!emailpattern.test(email)){
+                throw new Error("Invailed error");
+            }
+            if((marks <0 || marks >100)){
+                throw new Error("Marks must be between 0 to 100");
+            }
+
+
+        }
+        function calculateGrade(marks){
+            if(marks>=90) return A;
+            if(marks>=75) return B;
+            if(marks>=60) return C;
+            if(marks>=40) return D;
+            return "fail";
+
+        }
+
+        
+
+   
+    </script>
+    <button>
+        
+    </button>
+</body>
+</html>

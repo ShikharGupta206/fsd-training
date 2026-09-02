@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Local Shop</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .cart-box {
+            background-color: #222;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            width: 220px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .price {
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        button {
+            padding: 8px 14px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Local Shop Products</h1>
+
+<div class="cart-box">
+    Items in Cart: <span id="itemCount">0</span> |
+    Total Price: ₹<span id="totalPrice">0</span>
+</div>
+
+<div class="products" id="productContainer"></div>
+
+<script>
+
+    const products = [
+        {
+            name: "Keyboard",
+            price: 700,
+            image: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Black_keyboard.jpg"
+        },
+        {
+            name: "Mouse",
+            price: 400,
+            image: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Computer_mouse.jpg"
+        },
+        {
+            name: "Headphones",
+            price: 800,
+            image: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Headphones.jpg"
+        },
+        {
+            name: "Smart Watch",
+            price: 1500,
+            image: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Smartwatch.jpg"
+        },
+        {
+            name: "Shoes",
+            price: 1200,
+            image: "https://upload.wikimedia.org/wikipedia/commons/9/95/Running_shoes.jpg"
+        },
+        {
+            name: "Backpack",
+            price: 900,
+            image: "https://upload.wikimedia.org/wikipedia/commons/4/4d/Backpack.jpg"
+        }
+    ];
+
+    let itemCount = 0;
+    let totalPrice = 0;
+
+    const container = document.getElementById("productContainer");
+
+    products.forEach(function(product) {
+
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        card.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p class="price">₹${product.price}</p>
+            <button>Add to Cart</button>
+        `;
+
+        const button = card.querySelector("button");
+
+        button.addEventListener("click", function() {
+            itemCount++;
+            totalPrice += product.price;
+
+            document.getElementById("itemCount").innerText = itemCount;
+            document.getElementById("totalPrice").innerText = totalPrice;
+        });
+
+        container.appendChild(card);
+    });
+
+</script>
+
+</body>
+</html>

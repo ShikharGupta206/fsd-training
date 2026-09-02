@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ElectroMart — Fixed Image + Price Validation</title>
+<style>
+  :root{--accent:#0b76ef;--muted:#6b7280;font-family:Inter,system-ui,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:#f4f7fb;color:#0b1720}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:white;box-shadow:0 2px 8px rgba(10,20,40,0.04)}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6cc3ff);display:grid;place-items:center;color:white;font-weight:700}
+  main{display:grid;grid-template-columns:260px 1fr;gap:18px;padding:18px 20px}
+  .sidebar{background:transparent}
+  .section{background:white;padding:12px;border-radius:10px;margin-bottom:12px;box-shadow:0 1px 6px rgba(12,20,30,0.04)}
+  .categories button{display:block;width:100%;text-align:left;padding:10px;border-radius:8px;border:none;background:transparent;cursor:pointer}
+  .categories button.active{background:linear-gradient(90deg,var(--accent),#7ad0ff);color:white}
+  .filter-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .filter-row input[type="number"]{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8}
+  .companies{display:flex;flex-direction:column;gap:6px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .card{background:white;border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(15,23,36,0.04);display:flex;flex-direction:column;gap:10px}
+  .media{height:120px;border-radius:8px;background:#f1f5f9;display:grid;place-items:center}
+  .meta{display:flex;justify-content:space-between;align-items:center}
+  .title{font-weight:600}
+  .price{font-weight:700}
+  .btn{padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid #e6eef8;color:var(--muted);}
+  .cart-btn{position:relative}
+  .cart-count{position:absolute;right:-8px;top:-8px;background:#ef4444;color:white;border-radius:50%;min-width:20px;height:20px;display:grid;place-items:center;font-size:12px}
+  .cart-drawer{position:fixed;right:18px;top:18px;width:360px;max-height:80vh;background:white;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,0.18);overflow:auto;padding:12px;display:none;flex-direction:column;z-index:60}
+  .cart-drawer.open{display:flex}
+  .cart-item{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9}
+  .cart-item .thumb{width:56px;height:56px;border-radius:8px;background:#f8fafc;display:grid;place-items:center}
+  footer{padding:18px 20px;color:var(--muted)}
+  input.invalid{border-color:#ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,0.06)}
+  @media (max-width:900px){main{grid-template-columns:1fr;padding:12px} .sidebar{order:2} .cart-drawer{right:8px;left:8px;width:auto}}
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">EM</div>
+      <div>
+        <div style="font-weight:700">ElectroMart</div>
+        <div style="font-size:12px;color:var(--muted)">Electronics demo store</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center">
+      <button class="btn ghost" id="clearFilters">Clear Filters</button>
+      <button class="btn cart-btn" id="openCart">Cart <span id="cartCount" class="cart-count">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="sidebar">
+      <div class="section">
+        <div style="font-weight:700;margin-bottom:8px">Categories</div>
+        <div class="categories" id="categoryList"></div>
+      </div>
+
+      <div class="section">
+        <div style="font-weight:700;margin-bottom:8px">Filter: Price</div>
+        <div class="filter-row">
+          <input type="number" id="minPrice" placeholder="Min" min="0" />
+          <input type="number" id="maxPrice" placeholder="Max" min="0" />
+        </div>
+      </div>
+
+      <div class="section">
+        <div style="font-weight:700;margin-bottom:8px">Filter: Company</div>
+        <div class="companies" id="companyList"></div>
+      </div>
+
+      <div class="section">
+        <div style="font-weight:700;margin-bottom:8px">Sort</div>
+        <div class="sort">
+          <select id="sortBy">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low → High</option>
+            <option value="price-desc">Price: High → Low</option>
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <section class="products-wrap">
+      <div class="controls-top" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div id="resultsInfo" style="color:var(--muted)">Showing products</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="font-size:13px;color:var(--muted)">Show
+            <select id="perPage" style="margin-left:6px"><option>12</option><option>24</option></select>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid" id="productGrid"></div>
+      <div id="noResults" style="display:none;color:var(--muted);padding:18px">No products found with these filters.</div>
+    </section>
+  </main>
+
+  <div class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <strong>Your Cart</strong>
+      <div><button class="btn ghost" id="closeCart">Close</button></div>
+    </div>
+    <div id="cartItems"></div>
+    <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700">Total</div>
+      <div style="font-weight:700" id="cartTotal">₹0</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn ghost" id="clearCart">Clear</button>
+      <button class="btn" id="checkout">Checkout</button>
+    </div>
+  </div>
+
+  <footer><small>Demo — HTML/CSS/JS only — no backend</small></footer>
+
+<script>
+/*
+  PRODUCTS: using inline SVG placeholders rendered reliably by the browser.
+  No external images used so nothing can fail due to CORS/hotlink blocking.
+*/
+const PRODUCTS = [
+  {id:1, title:'LogiTech G102 Gaming Mouse', category:'Mouse', company:'LogiTech', price:899, color:'#0b76ef'},
+  {id:2, title:'HP Wireless Mouse 150', category:'Mouse', company:'HP', price:549, color:'#06b6d4'},
+  {id:3, title:'Dell Optical Wired Mouse', category:'Mouse', company:'Dell', price:399, color:'#10b981'},
+  {id:4, title:'Asus TUF Gaming Mouse', category:'Mouse', company:'Asus', price:1299, color:'#f97316'},
+
+  {id:11, title:'Dell Inspiron 15 (i5, 8GB, 512GB)', category:'Laptop', company:'Dell', price:45999, color:'#2563eb'},
+  {id:12, title:'HP Pavilion 14 (i3, 8GB, 256GB)', category:'Laptop', company:'HP', price:37999, color:'#ef4444'},
+  {id:13, title:'Asus Vivobook 15 (Ryzen 5)', category:'Laptop', company:'Asus', price:42999, color:'#7c3aed'},
+  {id:14, title:'Lenovo IdeaPad 3 (i5)', category:'Laptop', company:'Lenovo', price:40999, color:'#0ea5a4'},
+
+  {id:21, title:'Sony WH-CH520 Headphones', category:'Headphones', company:'Sony', price:4499, color:'#7c3aed'},
+  {id:22, title:'Boat Rockerz 510', category:'Headphones', company:'Boat', price:1999, color:'#ef4444'},
+
+  {id:31, title:'Redragon K552 Mechanical Keyboard', category:'Keyboard', company:'Redragon', price:2799, color:'#0b76ef'},
+  {id:32, title:'LogiTech K120 Wired Keyboard', category:'Keyboard', company:'LogiTech', price:699, color:'#06b6d4'}
+];
+
+// Inline SVG builder - returns an SVG string representing the product image.
+// We'll include the product title initial inside the SVG so each product looks distinct.
+function buildSVG(title, color, w=260, h=140){
+  const initial = (title||'').trim()[0] || '';
+  const safeTitle = escapeHtml(title);
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${safeTitle}">
+      <defs>
+        <linearGradient id="g${safeTitle.replace(/\\s+/g,'')}" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="${color}"/>
+          <stop offset="1" stop-color="#ffffff" stop-opacity="0.12"/>
+        </linearGradient>
+      </defs>
+      <rect rx="12" width="${w}" height="${h}" fill="url(#g${safeTitle.replace(/\\s+/g,'')})"/>
+      <g fill="white" opacity="0.95">
+        <text x="${w/2}" y="${h/2+10}" text-anchor="middle" font-size="42" font-family="Helvetica, Arial, sans-serif" font-weight="700">${initial}</text>
+      </g>
+    </svg>
+  `;
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+// Application state
+let state = {
+  category: 'Mouse',
+  companies: new Set(),
+  minPrice: null,
+  maxPrice: null,
+  sort: 'default',
+  perPage: 12,
+  cart: loadCart()
+};
+
+// DOM refs
+const categoryList = document.getElementById('categoryList');
+const companyList = document.getElementById('companyList');
+const productGrid = document.getElementById('productGrid');
+const minPriceInput = document.getElementById('minPrice');
+const maxPriceInput = document.getElementById('maxPrice');
+const sortBy = document.getElementById('sortBy');
+const perPage = document.getElementById('perPage');
+const resultsInfo = document.getElementById('resultsInfo');
+
+const cartCount = document.getElementById('cartCount');
+const cartDrawer = document.getElementById('cartDrawer');
+const cartItemsWrap = document.getElementById('cartItems');
+const cartTotal = document.getElementById('cartTotal');
+
+// Initialize UI
+function init(){
+  renderCategories();
+  attachListeners();
+  render();
+  updateCartUI();
+}
+
+// Render categories
+function renderCategories(){
+  const cats = Array.from(new Set(PRODUCTS.map(p=>p.category)));
+  categoryList.innerHTML = '';
+  cats.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.textContent = cat;
+    btn.className = (cat === state.category) ? 'active' : '';
+    btn.addEventListener('click', () => {
+      state.category = cat;
+      state.companies.clear();
+      minPriceInput.value = '';
+      maxPriceInput.value = '';
+      minPriceInput.classList.remove('invalid'); maxPriceInput.classList.remove('invalid');
+      render();
+    });
+    categoryList.appendChild(btn);
+  });
+}
+
+// Render company checkboxes based on active category
+function renderCompanies(){
+  const companies = Array.from(new Set(PRODUCTS.filter(p=>p.category===state.category).map(p=>p.company))).sort();
+  companyList.innerHTML = '';
+  companies.forEach(cmp=>{
+    const id = 'cmp-'+cmp.replace(/\s+/g,'');
+    const wrapper = document.createElement('label');
+    wrapper.style.cursor = 'pointer';
+    wrapper.style.display = 'block';
+    wrapper.style.marginBottom = '6px';
+    wrapper.innerHTML = `<input type="checkbox" id="${id}" ${state.companies.has(cmp)?'checked':''}/> ${cmp}`;
+    companyList.appendChild(wrapper);
+    wrapper.querySelector('input').addEventListener('change', (e)=>{
+      if(e.target.checked) state.companies.add(cmp); else state.companies.delete(cmp);
+      render();
+    });
+  });
+}
+
+// Attach listeners
+function attachListeners(){
+  minPriceInput.addEventListener('input', ()=>{ state.minPrice = parseNumber(minPriceInput.value); validateAndRender(); });
+  maxPriceInput.addEventListener('input', ()=>{ state.maxPrice = parseNumber(maxPriceInput.value); validateAndRender(); });
+  sortBy.addEventListener('change', ()=>{ state.sort = sortBy.value; render(); });
+  perPage.addEventListener('change', ()=>{ state.perPage = parseInt(perPage.value); render(); });
+  document.getElementById('clearFilters').addEventListener('click', ()=>{ clearFilters(); });
+  document.getElementById('openCart').addEventListener('click', ()=>{ cartDrawer.classList.add('open'); cartDrawer.setAttribute('aria-hidden','false');});
+  document.getElementById('closeCart').addEventListener('click', ()=>{ cartDrawer.classList.remove('open'); cartDrawer.setAttribute('aria-hidden','true');});
+  document.getElementById('clearCart').addEventListener('click', ()=>{ if(confirm('Clear all items from cart?')){ state.cart=[]; saveCart(); updateCartUI(); }});
+  document.getElementById('checkout').addEventListener('click', ()=>{ alert('Demo only — no real checkout'); });
+}
+
+function clearFilters(){
+  state.companies.clear();
+  state.minPrice = null; state.maxPrice = null;
+  minPriceInput.value = ''; maxPriceInput.value = '';
+  minPriceInput.classList.remove('invalid'); maxPriceInput.classList.remove('invalid');
+  state.sort = 'default'; sortBy.value = 'default';
+  render();
+}
+
+// validate min/max: if invalid, show alert, highlight fields and DO NOT apply filters
+function validateAndRender(){
+  const min = state.minPrice;
+  const max = state.maxPrice;
+  // remove previous invalid styling
+  minPriceInput.classList.remove('invalid'); maxPriceInput.classList.remove('invalid');
+  if(min != null && max != null && max < min){
+    // invalid
+    minPriceInput.classList.add('invalid'); maxPriceInput.classList.add('invalid');
+    alert('Invalid price range: max price cannot be lower than min price.');
+    // do NOT render filtered results; just return
+    return;
+  }
+  // valid -> render
+  render();
+}
+
+// Render product grid
+function render(){
+  renderCompanies();
+  let list = PRODUCTS.filter(p=>p.category === state.category);
+
+  // search (none in this build)
+  // company filter
+  if(state.companies.size > 0) list = list.filter(p=> state.companies.has(p.company));
+  // price filters — only apply when valid (we validated earlier)
+  if(state.minPrice != null) list = list.filter(p=> p.price >= state.minPrice);
+  if(state.maxPrice != null) list = list.filter(p=> p.price <= state.maxPrice);
+
+  // sort
+  if(state.sort === 'price-asc' || state.sort === 'price-asc' || sortBy.value === 'price-asc'){} // compatibility
+  if(state.sort === 'price-asc' || sortBy.value === 'price-asc'){ list.sort((a,b)=>a.price - b.price); }
+  if(state.sort === 'price-desc' || sortBy.value === 'price-desc'){ list.sort((a,b)=>b.price - a.price); }
+  if(state.sort === 'price-asc'){ /* handled above */ }
+  // Note: our select's option values are 'price-asc' and 'price-desc' or 'default'
+
+  // render DOM
+  productGrid.innerHTML = '';
+  if(list.length === 0){
+    document.getElementById('noResults').style.display = 'block';
+  } else {
+    document.getElementById('noResults').style.display = 'none';
+  }
+
+  list.slice(0, state.perPage).forEach(p=>{
+    const el = document.createElement('div'); el.className = 'card';
+    // Build SVG for product and embed it directly
+    const svg = buildSVG(p.title, p.color, 260, 120);
+    el.innerHTML = `
+      <div class="media">${svg}</div>
+      <div style="flex:1">
+        <div class="title">${escapeHtml(p.title)}</div>
+        <div style="font-size:13px;color:var(--muted)">${escapeHtml(p.company)} • ${escapeHtml(p.category)}</div>
+      </div>
+      <div class="meta">
+        <div class="price">₹${formatNumber(p.price)}</div>
+        <div>
+          <button class="btn ghost" data-id="${p.id}">Details</button>
+          <button class="btn" data-add="${p.id}">Add</button>
+        </div>
+      </div>
+    `;
+    productGrid.appendChild(el);
+  });
+
+  resultsInfo.textContent = `Showing ${Math.min(list.length, state.perPage)} of ${list.length} products in ${state.category}`;
+
+  // attach button handlers
+  document.querySelectorAll('[data-add]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = parseInt(btn.getAttribute('data-add'));
+      addToCart(id);
+      // small feedback
+      const orig = btn;
+      orig.textContent = 'Added';
+      setTimeout(()=>orig.textContent = 'Add', 700);
+    });
+  });
+  document.querySelectorAll('[data-id]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const pid = parseInt(btn.getAttribute('data-id'));
+      const p = PRODUCTS.find(x=>x.id===pid);
+      alert(`${p.title}\n\nPrice: ₹${p.price}\nCompany: ${p.company}`);
+    });
+  });
+}
+
+// Cart logic (localStorage)
+function addToCart(productId){
+  const prod = PRODUCTS.find(p=>p.id===productId);
+  if(!prod) return;
+  const existing = state.cart.find(i=>i.id===productId);
+  if(existing) existing.qty += 1; else state.cart.push({id:prod.id, title:prod.title, price:prod.price, qty:1});
+  saveCart(); updateCartUI();
+}
+function updateCartUI(){
+  cartCount.textContent = state.cart.reduce((s,i)=>s+i.qty,0);
+  cartItemsWrap.innerHTML = '';
+  if(state.cart.length === 0){
+    cartItemsWrap.innerHTML = '<div style="color:var(--muted);padding:12px">Your cart is empty.</div>'; cartTotal.textContent='₹0'; return;
+  }
+  state.cart.forEach(item=>{
+    const wr = document.createElement('div'); wr.className = 'cart-item';
+    const prod = PRODUCTS.find(p=>p.id===item.id) || {};
+    const svgThumb = buildSVG(item.title, prod.color || '#999', 56, 56);
+    wr.innerHTML = `
+      <div class="thumb">${svgThumb}</div>
+      <div style="flex:1">
+        <div style="font-weight:600">${escapeHtml(item.title)}</div>
+        <div style="font-size:13px;color:var(--muted)">₹${formatNumber(item.price)} • Qty: <input type="number" min="1" value="${item.qty}" data-qty="${item.id}" style="width:56px;padding:4px;border-radius:6px;border:1px solid #e6eef8"/></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700">₹${formatNumber(item.price*item.qty)}</div>
+        <div style="margin-top:6px"><button class="btn ghost" data-remove="${item.id}">Remove</button></div>
+      </div>
+    `;
+    cartItemsWrap.appendChild(wr);
+  });
+
+  // qty input handlers
+  cartItemsWrap.querySelectorAll('[data-qty]').forEach(inp=>{
+    inp.addEventListener('change', (e)=>{
+      const id = parseInt(e.target.getAttribute('data-qty')); let val = parseInt(e.target.value);
+      if(isNaN(val) || val < 1) val = 1;
+      const it = state.cart.find(x=>x.id===id); if(it){ it.qty = val; saveCart(); updateCartUI(); }
+    });
+  });
+  cartItemsWrap.querySelectorAll('[data-remove]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = parseInt(btn.getAttribute('data-remove'));
+      state.cart = state.cart.filter(x=>x.id !== id); saveCart(); updateCartUI();
+    });
+  });
+
+  const total = state.cart.reduce((s,i)=>s + i.price*i.qty, 0);
+  cartTotal.textContent = '₹' + formatNumber(total);
+}
+
+function saveCart(){ localStorage.setItem('demo_cart_v2', JSON.stringify(state.cart)); }
+function loadCart(){ try{ const t = JSON.parse(localStorage.getItem('demo_cart_v2') || '[]'); return Array.isArray(t) ? t : []; } catch(e){ return []; } }
+
+function formatNumber(n){ return n.toLocaleString('en-IN'); }
+function parseNumber(v){ if(v === '' || v === null || v === undefined) return null; const n = parseFloat(v); return Number.isFinite(n) ? n : null; }
+
+// Build small SVG for thumbs (string -> nodes inserted as HTML)
+function buildSVG(title, color, w=260, h=120){
+  const initial = (title||'').trim()[0] || '';
+  const id = 'g' + Math.random().toString(36).slice(2,9);
+  // use minimal safe svg (no quotes that break HTML)
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}' aria-label='${escapeHtml(title)}'>
+    <defs><linearGradient id='${id}' x1='0' x2='1' y1='0' y2='1'><stop offset='0' stop-color='${color}'/><stop offset='1' stop-color='#ffffff' stop-opacity='0.12'/></linearGradient></defs>
+    <rect rx='12' width='${w}' height='${h}' fill='url(#${id})'/>
+    <g fill='white' opacity='0.95'><text x='${w/2}' y='${h/2 + 8}' text-anchor='middle' font-size='42' font-family='Helvetica, Arial, sans-serif' font-weight='700'>${escapeHtml(initial)}</text></g>
+  </svg>`;
+}
+
+// first boot
+init();
+</script>
+</body>
+</html>

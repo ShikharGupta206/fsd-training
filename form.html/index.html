@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Basic Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        form {
+            width: 280px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 15px;
+            width: 100%;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Basic Form</h2>
+
+    <form id="myForm">
+        
+        <label>Name:</label>
+        <input type="text" id="name" required>
+
+        <label>Email:</label>
+        <input type="email" id="email" required>
+
+        <label>Phone Number:</label>
+        <input type="tel" id="phone" required>
+
+        <label>Password:</label>
+        <input type="password" id="password" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <p id="result" style="margin-top: 15px; font-weight: bold;"></p>
+
+    <script>
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+            event.preventDefault();  
+
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let phone = document.getElementById("phone").value;
+            let password = document.getElementById("password").value;
+
+            document.getElementById("result").innerText =
+                "Name: " + name +
+                " | Email: " + email +
+                " | Phone: " + phone +
+                " | Password: " + password;
+                myF.0.o0000rm.reset();
+        });
+    </script>
+
+</body>
+</html>

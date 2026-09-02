@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* Simple styling for drop box */
+    .box {
+      width: 200px;
+      height: 200px;
+      border: 2px dashed black;
+      margin: 20px;
+      display: inline-block;
+      padding: 10px;
+    }
+
+    /* Draggable item styling */
+    #dragItem {
+      width: 80px;
+      height: 80px;
+      background: orange;
+      cursor: grab; /* mouse icon change when hover */
+    }
+  </style>
+</head>
+<body>
+
+<!-- draggable="true" => browser ko batata hai ki element drag ho sakta hai -->
+<div id="dragItem" draggable="true">Drag me</div>
+
+<!-- Ye drop area hai jaha element ko chhodna hai -->
+<div id="dropZone" class="box">Drop here</div>
+
+<script>
+  // DOM se elements select kiye
+  const dragItem = document.getElementById("dragItem");
+  const dropZone = document.getElementById("dropZone");
+
+  // 🔹 dragstart => jab user element ko drag karna start karta hai
+  dragItem.addEventListener("dragstart", (e) => {
+
+    // dataTransfer ek temporary storage hai
+    // yaha hum drag ho rahe element ki id store kar rahe hain
+    e.dataTransfer.setData("text/plain", "dragItem");
+  });
+
+  // 🔹 dragover => jab draggable element dropZone ke upar aata hai
+  dropZone.addEventListener("dragover", (e) => {
+
+    // Default behaviour me drop allowed nahi hota
+    // preventDefault() likhne se drop enable ho jata hai
+    e.preventDefault();
+  });
+
+  // 🔹 drop => jab user element ko drop karta hai
+  dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    // dragstart me jo id save ki thi wo yaha wapas milti hai
+    const id = e.dataTransfer.getData("text/plain");
+
+    // id ki help se actual element ko select kiya
+    const element = document.getElementById(id);
+
+    // appendChild => element ko dropZone ke andar move kar deta hai
+    dropZone.appendChild(element);
+  });
+</script>
+
+</body>
+</html>

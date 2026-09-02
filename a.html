@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ELECTROHUB</title>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#f1f3f6}
+.dark{background:#0f172a;color:white}
+
+header{
+background:#2874f0;color:white;padding:15px;
+display:flex;gap:10px;align-items:center
+}
+
+header input,select,button{padding:6px}
+.cart{margin-left:auto;font-weight:bold}
+
+.container{display:flex}
+
+.sidebar{
+width:230px;background:white;padding:15px;border-right:1px solid #ddd
+}
+.dark .sidebar{background:#1e293b}
+
+.sidebar h3{margin-top:0}
+.sidebar button{
+width:100%;margin-bottom:6px;padding:6px;
+background:#e5e7eb;border:none;cursor:pointer;text-align:left
+}
+
+.main{flex:1}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:15px;padding:20px
+}
+
+.card{
+background:white;padding:10px;border-radius:8px;text-align:center
+}
+.dark .card{background:#1e293b}
+
+img{width:100%;height:150px;object-fit:cover}
+
+.card button{
+background:#ff9f00;border:none;padding:6px;
+cursor:pointer;margin-top:5px
+}
+
+.notify{
+position:fixed;top:10px;right:10px;
+padding:10px;border-radius:6px;color:white
+}
+.success{background:green}
+.error{background:red}
+
+.wallet{
+background:#16a34a;color:white;
+padding:6px 10px;border-radius:6px
+}
+</style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+function ElectroHub(){
+
+const productsData=[
+/* ---------- LAPTOPS (5) ---------- */
+{id:1,name:"Dell Inspiron",brand:"Dell",category:"Laptop",price:55000,warranty:"1 Year",rating:4.3,stock:3,img:"https://images.unsplash.com/photo-1517336714731-489689fd1ca8"},
+{id:2,name:"HP Pavilion",brand:"HP",category:"Laptop",price:62000,warranty:"1 Year",rating:4.1,stock:2,img:"https://images.unsplash.com/photo-1496181133206-80ce9b88a853"},
+{id:3,name:"Lenovo IdeaPad",brand:"Lenovo",category:"Laptop",price:48000,warranty:"1 Year",rating:4.0,stock:4,img:"https://images.unsplash.com/photo-1509395176047-4a66953fd231"},
+{id:4,name:"MacBook Air",brand:"Apple",category:"Laptop",price:92000,warranty:"1 Year",rating:4.8,stock:1,img:"https://images.unsplash.com/photo-1515879218367-8466d910aaa4"},
+{id:5,name:"Asus VivoBook",brand:"Asus",category:"Laptop",price:51000,warranty:"1 Year",rating:4.2,stock:3,img:"https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2"},
+
+/* ---------- MOBILES (5) ---------- */
+{id:6,name:"iPhone 14",brand:"Apple",category:"Mobile",price:70000,warranty:"1 Year",rating:4.7,stock:2,img:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"},
+{id:7,name:"Samsung S23",brand:"Samsung",category:"Mobile",price:65000,warranty:"1 Year",rating:4.6,stock:3,img:"https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5"},
+{id:8,name:"OnePlus 11",brand:"OnePlus",category:"Mobile",price:56000,warranty:"1 Year",rating:4.5,stock:4,img:"https://images.unsplash.com/photo-1523206489230-c012c64b2b48"},
+{id:9,name:"Xiaomi 13",brand:"Xiaomi",category:"Mobile",price:42000,warranty:"1 Year",rating:4.2,stock:5,img:"https://images.unsplash.com/photo-1542751110-97427bbecf20"},
+{id:10,name:"Realme GT",brand:"Realme",category:"Mobile",price:35000,warranty:"1 Year",rating:4.1,stock:3,img:"https://images.unsplash.com/photo-1523473827533-2b1c99d1a6fd"},
+
+/* ---------- TABLETS (5) ---------- */
+{id:11,name:"iPad",brand:"Apple",category:"Tablet",price:40000,warranty:"1 Year",rating:4.6,stock:2,img:"https://images.unsplash.com/photo-1542751371-adc38448a05e"},
+{id:12,name:"Samsung Tab",brand:"Samsung",category:"Tablet",price:32000,warranty:"1 Year",rating:4.4,stock:3,img:"https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04"},
+{id:13,name:"Lenovo Tab",brand:"Lenovo",category:"Tablet",price:28000,warranty:"1 Year",rating:4.0,stock:2,img:"https://images.unsplash.com/photo-1589739900266-43b284c7e9fa"},
+{id:14,name:"Realme Pad",brand:"Realme",category:"Tablet",price:20000,warranty:"1 Year",rating:3.9,stock:4,img:"https://images.unsplash.com/photo-1587033411391-5d9e51cce126"},
+{id:15,name:"Xiaomi Pad",brand:"Xiaomi",category:"Tablet",price:30000,warranty:"1 Year",rating:4.3,stock:3,img:"https://images.unsplash.com/photo-1587094313663-ef6a5c41c34a"},
+
+/* ---------- AC, WM, COOLER, PROJECTOR (5 each combined) ---------- */
+{id:16,name:"LG Washing Machine",brand:"LG",category:"Washing Machine",price:26000,warranty:"2 Years",rating:4.4,stock:2,img:"https://images.unsplash.com/photo-1581578731548-c64695cc6952"},
+{id:17,name:"Samsung Washing Machine",brand:"Samsung",category:"Washing Machine",price:28000,warranty:"2 Years",rating:4.3,stock:3,img:"https://images.unsplash.com/photo-1602810316695-2f9d8fd1c6d6"},
+{id:18,name:"Whirlpool Washing Machine",brand:"Whirlpool",category:"Washing Machine",price:24000,warranty:"2 Years",rating:4.2,stock:2,img:"https://images.unsplash.com/photo-1621600411688-4be93cd68504"},
+
+{id:19,name:"Samsung AC",brand:"Samsung",category:"Air Conditioner",price:42000,warranty:"2 Years",rating:4.5,stock:1,img:"https://images.unsplash.com/photo-1590490360182-c33d57733427"},
+{id:20,name:"LG AC",brand:"LG",category:"Air Conditioner",price:45000,warranty:"2 Years",rating:4.6,stock:2,img:"https://images.unsplash.com/photo-1621768216002-5ac171876625"},
+
+{id:21,name:"Symphony Cooler",brand:"Symphony",category:"Cooler",price:9000,warranty:"1 Year",rating:4.1,stock:3,img:"https://images.unsplash.com/photo-1621768216002-5ac171876625"},
+{id:22,name:"Bajaj Cooler",brand:"Bajaj",category:"Cooler",price:8500,warranty:"1 Year",rating:4.0,stock:4,img:"https://images.unsplash.com/photo-1604068549290-dea0e4a305ca"},
+
+{id:23,name:"Epson Projector",brand:"Epson",category:"Projector",price:52000,warranty:"2 Years",rating:4.7,stock:1,img:"https://images.unsplash.com/photo-1581091215367-59ab6c3c3b99"},
+{id:24,name:"BenQ Projector",brand:"BenQ",category:"Projector",price:48000,warranty:"2 Years",rating:4.6,stock:2,img:"https://images.unsplash.com/photo-1605792657660-596af9009e82"}
+];
+
+const [products,setProducts]=React.useState(productsData);
+const [cart,setCart]=React.useState(0);
+const [wallet,setWallet]=React.useState(150000);
+const [filter,setFilter]=React.useState("");
+const [search,setSearch]=React.useState("");
+const [sort,setSort]=React.useState("");
+const [dark,setDark]=React.useState(false);
+const [msg,setMsg]=React.useState({text:"",type:""});
+
+const addToCart=(p)=>{
+if(p.stock===0){
+setMsg({text:"❌ Item Finished",type:"error"});return;
+}
+if(wallet<p.price){
+setMsg({text:"❌ Insufficient Wallet Balance",type:"error"});return;
+}
+p.stock--;setCart(cart+1);
+setWallet(wallet-p.price);
+setMsg({text:"✅ Item Added to Cart",type:"success"});
+setTimeout(()=>setMsg({text:"",type:""}),2000);
+};
+
+let filtered=products.filter(p=>
+p.name.toLowerCase().includes(search.toLowerCase()) &&
+(filter==="" || p.category===filter || p.brand===filter)
+);
+
+if(sort==="low")filtered.sort((a,b)=>a.price-b.price);
+if(sort==="high")filtered.sort((a,b)=>b.price-a.price);
+
+return(
+<div className={dark?"dark":""}>
+<header>
+<h2>ELECTROHUB</h2>
+<input placeholder="Search" value={search} onChange={e=>setSearch(e.target.value)}/>
+<select onChange={e=>setSort(e.target.value)}>
+<option value="">Sort Price</option>
+<option value="low">Low to High</option>
+<option value="high">High to Low</option>
+</select>
+<button onClick={()=>setDark(!dark)}>Theme</button>
+<div className="wallet">Wallet ₹{wallet}</div>
+<div className="cart">🛒 {cart}</div>
+</header>
+
+<div className="container">
+<div className="sidebar">
+<h3>Categories</h3>
+{["Laptop","Mobile","Tablet","Washing Machine","Air Conditioner","Cooler","Projector"].map(c=>(
+<button key={c} onClick={()=>setFilter(c)}>{c}</button>
+))}
+<h3>Brands</h3>
+{["Apple","Samsung","Dell","HP","LG","Lenovo"].map(b=>(
+<button key={b} onClick={()=>setFilter(b)}>{b}</button>
+))}
+<button onClick={()=>setFilter("")}>Show All</button>
+</div>
+
+<div className="main">
+{msg.text && <div className={`notify ${msg.type}`}>{msg.text}</div>}
+<div className="grid">
+{filtered.map(p=>(
+<div className="card" key={p.id}>
+<img src={p.img}/>
+<h4>{p.name}</h4>
+<p>Brand: {p.brand}</p>
+<p>₹{p.price}</p>
+<p>⭐ {p.rating}</p>
+<p>Warranty: {p.warranty}</p>
+<p>Stock: {p.stock===0?"Finished":p.stock}</p>
+<button onClick={()=>addToCart(p)}>Add to Cart</button>
+</div>
+))}
+</div>
+</div>
+</div>
+</div>
+);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<ElectroHub/>);
+</script>
+</body>
+</html>
